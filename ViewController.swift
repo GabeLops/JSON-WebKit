@@ -10,6 +10,7 @@ import UIKit
 
 class ViewController: UITableViewController {
     var petitions = [Petition]()
+    var filteredPetitions = [Petition]()
     
 
     override func viewDidLoad() {
@@ -54,8 +55,8 @@ class ViewController: UITableViewController {
         ac.addTextField()
         
         let submitAction = UIAlertAction(title: "Submit", style: .default) {
-            [weak self, weak ac] in
-            guard let filter = ac?.textFields[0].text else {return}
+            [weak self, weak ac] _ in
+            guard let filter = ac?.textFields?[0].text else {return}
             self?.submit(filter)
             }
         ac.addAction(submitAction)
@@ -64,14 +65,12 @@ class ViewController: UITableViewController {
         
     }
     
-    func submit(filter: String) {
-        var filteredPetitions = petitions
-        for str in petitions {
-            if str.body.contains(filter) || str.title.contains(filter) {
-                filteredPetitions.append(str.body)
-                filteredPetitions.append(str.title)
-            }
+    func submit(_ filter: String) {
+         petitions = filteredPetitions.filter {
+            $0.title.lowercased().contains(filter) ||
+                $0.body.lowercased().contains(filter)
         }
+        tableView.reloadData()
         
         
     }
@@ -89,7 +88,7 @@ class ViewController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let petition = filteredPetitions[indexPath.row]
+        let petition = petitions[indexPath.row]
         cell.textLabel?.text = petition.title
         cell.detailTextLabel?.text = petition.body
         return cell
