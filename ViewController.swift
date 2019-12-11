@@ -10,9 +10,13 @@ import UIKit
 
 class ViewController: UITableViewController {
     var petitions = [Petition]()
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(filter))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Credits", style: .plain, target: self, action: #selector(showCredits))
         let urlString: String
         if navigationController?.tabBarItem.tag == 0 {
             urlString = "https://www.hackingwithswift.com/samples/petitions-1.json"
@@ -44,13 +48,48 @@ class ViewController: UITableViewController {
     }
     
     
+    
+    @objc func filter() {
+        let ac = UIAlertController(title: "filter", message: "Type in something to filter your results", preferredStyle: .alert)
+        ac.addTextField()
+        
+        let submitAction = UIAlertAction(title: "Submit", style: .default) {
+            [weak self, weak ac] in
+            guard let filter = ac?.textFields[0].text else {return}
+            self?.submit(filter)
+            }
+        ac.addAction(submitAction)
+        present (ac, animated: true)
+        
+        
+    }
+    
+    func submit(filter: String) {
+        var filteredPetitions = petitions
+        for str in petitions {
+            if str.body.contains(filter) || str.title.contains(filter) {
+                filteredPetitions.append(str.body)
+                filteredPetitions.append(str.title)
+            }
+        }
+        
+        
+    }
+    
+    @objc func showCredits() {
+        let ac = UIAlertController(title: "This Data comes from we the people api of the White House", message: nil, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "Okay", style: .default, handler: nil))
+        present(ac, animated: true)
+    }
+    
+    
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return petitions.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let petition = petitions[indexPath.row]
+        let petition = filteredPetitions[indexPath.row]
         cell.textLabel?.text = petition.title
         cell.detailTextLabel?.text = petition.body
         return cell
