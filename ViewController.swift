@@ -43,7 +43,7 @@ class ViewController: UITableViewController {
         let decoder = JSONDecoder()
         
         if let jsonPetitions = try? decoder.decode(Petitions.self, from: json){
-            petitions = jsonPetitions.results
+            filteredPetitions = jsonPetitions.results
             tableView.reloadData()
         }
     }
@@ -66,10 +66,11 @@ class ViewController: UITableViewController {
     }
     
     func submit(_ filter: String) {
-         petitions = filteredPetitions.filter {
-            $0.title.lowercased().contains(filter) ||
-                $0.body.lowercased().contains(filter)
-        }
+         for petition in petitions {
+           if petition.title.lowercased().contains(filter.lowercased()) {
+             filteredPetitions.append(petition)
+           }
+         }
         tableView.reloadData()
         
         
@@ -84,11 +85,11 @@ class ViewController: UITableViewController {
     
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return petitions.count
+        return filteredPetitions.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let petition = petitions[indexPath.row]
+        let petition = filteredPetitions[indexPath.row]
         cell.textLabel?.text = petition.title
         cell.detailTextLabel?.text = petition.body
         return cell
@@ -96,7 +97,7 @@ class ViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = DetailViewController()
-        vc.detailedItem = petitions[indexPath.row]
+        vc.detailedItem = filteredPetitions[indexPath.row]
         navigationController?.pushViewController(vc, animated: true)
     }
 
