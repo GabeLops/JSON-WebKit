@@ -69,12 +69,11 @@ class ViewController: UITableViewController {
          for petition in petitions {
            if petition.title.lowercased().contains(filter.lowercased()) {
              filteredPetitions.append(petition)
+             tableView.reloadData()
            }
          }
-        tableView.reloadData()
         
-        
-    }
+      }
     
     @objc func showCredits() {
         let ac = UIAlertController(title: "This Data comes from we the people api of the White House", message: nil, preferredStyle: .alert)
